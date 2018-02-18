@@ -1,0 +1,31 @@
+{
+  "env": {
+    "gravity": 25,
+    "friction": 0.02
+  },
+  "connections": {
+    "enabled": true,
+    "strokeW": 8,
+    "color": "#3fd",
+    "maxDistSq": 3500
+  },
+  "minnows": {
+    "count": 50,
+    "minRadius": 8,
+    "maxRadius": 8,
+    "strokeW": 8,
+    "strokeColor": null,
+    "fillColor": "#eee",
+    "glowStrokeColor": "#3fd",
+    "glowFillColor": "#fff",
+    "glowSecs": 2,
+    "maxVel": 15,
+    "tailLength": 2
+  },
+  "treats": {
+    "count": 5,
+    "radius": 0,
+    "color": "#222",
+    "eatDist": 4
+  }
+}

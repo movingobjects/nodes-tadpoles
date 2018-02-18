@@ -1,9 +1,12 @@
 
+import config from './config';
 
 export default class Bg {
 
   constructor() {
     console.log('Good job!');
+
+    console.log(config);
 
   }
 
