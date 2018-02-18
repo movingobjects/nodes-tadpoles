@@ -1,5 +1,11 @@
 
+// Imports
+
+import * as _ from 'lodash';
+import { maths, random } from 'varyd-utils';
+
 import config from './config';
+
 
 // TODO: Look into Path2D for drawing circles (?)
 
@@ -11,6 +17,10 @@ export default class Bg {
 
     this.canvas  = document.getElementById(canvasId);
     this.context = this.canvas.getContext('2d');
+
+    this.nodes   = [];
+    this.links   = [];
+    this.targets = [];
 
     this.handleResize();
 
@@ -56,6 +66,11 @@ export default class Bg {
     window.addEventListener('resize', this.handleResize);
     window.requestAnimationFrame(this.handleFrame);
 
+    this.nodes   = _.times(config.nodes.count, () => ({
+      x: random.int(0, this.w),
+      y: random.int(0, this.h)
+    }));
+
   }
 
   redraw() {
@@ -65,7 +80,9 @@ export default class Bg {
 
     ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-    this.drawCircle(this.w / 2, this.h / 2, 50, '#f55');
+    this.nodes.forEach((node, i) => {
+      this.drawCircle(node.x, node.y, config.nodes.radius, config.nodes.colorOff);
+    });
 
   }
 

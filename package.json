@@ -46,7 +46,10 @@
     "webpack-dev-server": "^2.11.1",
     "webpack-merge": "^4.1.1"
   },
-  "dependencies": {},
+  "dependencies": {
+    "lodash": "^4.17.5",
+    "varyd-utils": "^1.0.0"
+  },
   "log-box": {
     "default": {
       "style": "round",
