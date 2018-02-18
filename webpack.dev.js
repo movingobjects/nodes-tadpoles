@@ -9,11 +9,23 @@ module.exports = merge(common, {
 
   module: {
     rules: [
+
       {
         test: /\.jsx?$/,
         enforce: 'pre',
-        loader: 'source-map-loader'
+        loader: 'source-map-loader',
+        exclude: /node_modules\/paper/,
+      },
+
+      {
+        test: /\.scss$/,
+        use: [
+          { loader: 'style-loader' },
+          { loader: 'css-loader' },
+          { loader: 'sass-loader' }
+        ]
       }
+
     ]
   },
 
