@@ -1,7 +1,7 @@
 {
   "name": "movingobjects.io",
   "productName": "Moving Objects",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Creative work of Scott Thiessen",
   "author": "Scott Thiessen (http://movingobjects.io)",
   "license": "ISC",
@@ -37,6 +37,7 @@
     "log-box": "^0.4.3",
     "minimist": "^1.2.0",
     "node-sass": "^4.7.2",
+    "paper-loader": "^0.1.2",
     "sass-loader": "^6.0.6",
     "source-map-loader": "^0.2.3",
     "style-loader": "^0.20.1",

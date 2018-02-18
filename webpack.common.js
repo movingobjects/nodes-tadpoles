@@ -35,6 +35,11 @@ module.exports = {
       },
 
       {
+        test: /\.paper.js$/,
+        loader: "paper-loader"
+      },
+
+      {
         test: /\.scss$/,
         use: [
           { loader: 'style-loader' },
@@ -47,12 +52,12 @@ module.exports = {
   },
 
   plugins: [
-    new CopyWebpackPlugin([
+    /*new CopyWebpackPlugin([
       {
         from: 'app/src/static',
         to: 'resources'
       }
-    ]),
+    ]),*/
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: 'app/src/index.html'
