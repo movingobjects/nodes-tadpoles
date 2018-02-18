@@ -1,5 +1,6 @@
 {
   "env": {
+    "padding": 100,
     "gravity": 25,
     "friction": 0.02
   },
@@ -8,15 +9,15 @@
     "radius": 8,
     "colorOff": "#555",
     "colorOn": "#3fd",
-    "maxVel": 15
+    "maxVel": 8
   },
   "links": {
     "strokeW": 8,
     "color": "#3fd",
     "maxDistSq": 3500
   },
-  "targets": {
+  "trgts": {
     "count": 5,
-    "minDist": 4
+    "minDist": 10
   }
 }

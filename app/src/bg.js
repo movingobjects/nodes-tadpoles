@@ -2,7 +2,7 @@
 // Imports
 
 import * as _ from 'lodash';
-import { maths, random } from 'varyd-utils';
+import { maths, random, geom } from 'varyd-utils';
 
 import config from './config';
 
@@ -18,14 +18,30 @@ export default class Bg {
     this.canvas  = document.getElementById(canvasId);
     this.context = this.canvas.getContext('2d');
 
-    this.nodes   = [];
-    this.links   = [];
-    this.targets = [];
+    this.nodes = [];
+    this.links = [];
+    this.trgts = [];
 
     this.handleResize();
 
     this.start();
 
+  }
+
+
+  // Get & set
+
+  get randomX() {
+    return random.int(config.env.padding, this.w - config.env.padding);
+  }
+  get randomY() {
+    return random.int(config.env.padding, this.h - config.env.padding);
+  }
+  get randomPt() {
+    return {
+      x: this.randomX,
+      y: this.randomY
+    }
   }
 
 
@@ -52,6 +68,7 @@ export default class Bg {
 
   handleFrame = () => {
 
+    this.updateNodes();
     this.redraw();
 
     window.requestAnimationFrame(this.handleFrame);
@@ -67,9 +84,13 @@ export default class Bg {
     window.requestAnimationFrame(this.handleFrame);
 
     this.nodes   = _.times(config.nodes.count, () => ({
-      x: random.int(0, this.w),
-      y: random.int(0, this.h)
+      ...this.randomPt,
+      vel: {
+        x: random.num(-1, 1),
+        y: random.num(-1, 1)
+      }
     }));
+    this.trgts = _.times(config.trgts.count, () => this.randomPt);
 
   }
 
@@ -80,8 +101,74 @@ export default class Bg {
 
     ctx.clearRect(0, 0, cvs.width, cvs.height);
 
+    this.trgts.forEach((trgt, i) => {
+      this.drawCircle(trgt.x, trgt.y, 4, '#f05');
+    });
+
     this.nodes.forEach((node, i) => {
       this.drawCircle(node.x, node.y, config.nodes.radius, config.nodes.colorOff);
+    });
+
+  }
+
+  updateNodes() {
+
+    this.nodes.forEach((node, i) => {
+
+      let velX = node.vel.x,
+          velY = node.vel.y;
+
+      // Find nearest trgt
+
+      if (this.trgts.length) {
+
+        let trgtNearest = this.trgts[0],
+            distSqMin   = geom.distSq(node, trgtNearest);
+
+        this.trgts.forEach((trgt, j) => {
+          let distSq = geom.distSq(node, trgt);
+          if (distSq < distSqMin) {
+            distSqMin   = distSq;
+            trgtNearest = trgt;
+          }
+        });
+
+
+        // Check for eats
+
+        let trgtDist = Math.sqrt(distSqMin),
+            trgtX    = trgtNearest.x,
+            trgtY    = trgtNearest.y;
+
+        if (trgtDist < config.trgts.minDist) {
+          trgtNearest.x = this.randomX;
+          trgtNearest.y = this.randomY;
+        }
+
+        // Recalc vel
+
+        let factorDist = 1 / Math.max(5, trgtDist * trgtDist),
+            pullX      = (trgtX - node.x) * factorDist * config.env.gravity,
+            pullY      = (trgtY - node.y) * factorDist * config.env.gravity;
+
+        velX += pullX;
+        velY += pullY;
+
+      }
+
+      velX = (velX * (1 - config.env.friction)) + ((node.vel.x - velX) * 0.5);
+      velY = (velY * (1 - config.env.friction)) + ((node.vel.y - velY) * 0.5);
+
+      velX = maths.clamp(velX, -config.nodes.maxVel, config.nodes.maxVel);
+      velY = maths.clamp(velY, -config.nodes.maxVel, config.nodes.maxVel);
+
+      node.vel.x = velX;
+      node.vel.y = velY;
+
+      node.x += node.vel.x;
+      node.y += node.vel.y;
+
+
     });
 
   }
@@ -94,9 +181,10 @@ export default class Bg {
     const ctx = this.context;
           ctx.fillStyle = color;
           ctx.beginPath();
-          ctx.arc(x, y, radius, radius, 0, Math.PI * 2, 0);
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
           ctx.fill();
 
   }
+
 
 }
