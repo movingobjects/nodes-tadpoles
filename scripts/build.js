@@ -18,9 +18,9 @@ const verb         = args.watch ? 'Watching' : 'Building';
 
 const getCmd = () => {
   if (args.watch) {
-    return `webpack-dev-server --hot --inline --open`;
+    return `webpack-dev-server --config=webpack.dev.js --hot --inline --open`;
   } else {
-    return `webpack`;
+    return `webpack --config=webpack.prod.js`;
   }
 };
 

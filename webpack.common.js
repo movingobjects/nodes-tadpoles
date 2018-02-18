@@ -1,8 +1,7 @@
 
 const path              = require('path'),
       CopyWebpackPlugin = require('copy-webpack-plugin'),
-      HtmlWebpackPlugin = require('html-webpack-plugin'),
-      UglifyJSPlugin    = require('uglifyjs-webpack-plugin');
+      HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 
@@ -15,8 +14,6 @@ module.exports = {
     filename: 'resources/scripts/[name].bundle.js'
   },
 
-  devtool: 'source-map',
-
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
     modules: [
@@ -27,12 +24,6 @@ module.exports = {
 
   module: {
     rules: [
-
-      {
-        test: /\.jsx?$/,
-        enforce: 'pre',
-        loader: 'source-map-loader'
-      },
 
       {
         test: /\.jsx?$/,
@@ -56,7 +47,6 @@ module.exports = {
   },
 
   plugins: [
-    new UglifyJSPlugin(),
     new CopyWebpackPlugin([
       {
         from: 'app/src/static',
