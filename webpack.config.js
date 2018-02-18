@@ -1,0 +1,72 @@
+
+const path              = require('path'),
+      CopyWebpackPlugin = require('copy-webpack-plugin'),
+      HtmlWebpackPlugin = require('html-webpack-plugin'),
+      UglifyJSPlugin    = require('uglifyjs-webpack-plugin');
+
+module.exports = {
+
+  entry: {
+    app: './app/src/entry.js'
+  },
+
+  output: {
+    path: path.resolve(__dirname, './app/build'),
+    filename: 'resources/scripts/[name].bundle.js'
+  },
+
+  devtool: 'source-map',
+
+  resolve: {
+    extensions: ['.js', '.jsx', '.json'],
+    modules: [
+      path.resolve(__dirname),
+      'node_modules'
+    ]
+  },
+
+  module: {
+    rules: [
+
+      {
+        test: /\.jsx?$/,
+        enforce: 'pre',
+        loader: 'source-map-loader'
+      },
+
+      {
+        test: /\.jsx?$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/,
+        options: {
+          presets: ['env']
+        }
+      },
+
+      {
+        test: /\.scss$/,
+        use: [
+          { loader: 'style-loader' },
+          { loader: 'css-loader' },
+          { loader: 'sass-loader' }
+        ]
+      }
+
+    ]
+  },
+
+  plugins: [
+    new UglifyJSPlugin(),
+    new CopyWebpackPlugin([
+      {
+        from: 'app/src/static',
+        to: 'resources'
+      }
+    ]),
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: 'app/src/index.html'
+    })
+  ]
+
+};

@@ -1,0 +1,60 @@
+body {
+  background: white;
+  margin: 0px;
+  font-family: $fontDinRound;
+}
+
+canvas#bg {
+  z-index: 1;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+section#info {
+  z-index: 2;
+  position: absolute;
+  bottom: 50px;
+  left: 50px;
+  margin-right: 75px;
+  max-width: 1000px;
+
+  p {
+    margin: 0px;
+    padding: 0px;
+    font-size: 70px;
+    line-height: 80px;
+    color: black;
+
+    span {
+      color: black;
+      background-color: #cf0;
+      padding: 5px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      &:hover {
+        border-bottom: 7px solid black;
+        color: black;
+      }
+    }
+
+  }
+
+}
+
+::selection {
+  background-color: #3fd;
+  color: mix(black, #3fd, 50%);
+}
+
+::-moz-selection {
+  background-color: #3fd;
+  color: mix(black, #3fd, 50%);
+}
