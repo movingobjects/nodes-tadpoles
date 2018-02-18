@@ -1,7 +1,7 @@
 {
   "name": "movingobjects.io",
   "productName": "Moving Objects",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Creative work of Scott Thiessen",
   "author": "Scott Thiessen (http://movingobjects.io)",
   "license": "ISC",
@@ -31,12 +31,14 @@
     "babel-preset-env": "^1.6.1",
     "copy-webpack-plugin": "^4.4.1",
     "css-loader": "^0.28.9",
+    "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",
     "fs-extra": "^5.0.0",
     "html-webpack-plugin": "^2.30.1",
     "log-box": "^0.4.3",
     "minimist": "^1.2.0",
     "node-sass": "^4.7.2",
+    "paper": "^0.11.5",
     "paper-loader": "^0.1.2",
     "sass-loader": "^6.0.6",
     "source-map-loader": "^0.2.3",
@@ -45,9 +47,7 @@
     "webpack-dev-server": "^2.11.1",
     "webpack-merge": "^4.1.1"
   },
-  "dependencies": {
-    "paper": "^0.11.5"
-  },
+  "dependencies": {},
   "log-box": {
     "default": {
       "style": "round",
