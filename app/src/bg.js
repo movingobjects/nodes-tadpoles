@@ -12,15 +12,9 @@ export default class Bg {
     this.canvas  = document.getElementById(canvasId);
     this.context = this.canvas.getContext('2d');
 
-    this.initResize();
+    this.handleResize();
 
-    this.redraw();
-
-  }
-  initResize() {
-
-    window.addEventListener('resize', this.handleResize);
-    this.updateSize();
+    this.start();
 
   }
 
@@ -28,14 +22,6 @@ export default class Bg {
   // Event handlers
 
   handleResize = () => {
-
-    this.updateSize();
-
-  }
-
-  // Methods
-
-  updateSize() {
 
     const w = this.canvas.clientWidth,
           h = this.canvas.clientHeight;
@@ -54,10 +40,30 @@ export default class Bg {
 
   }
 
+  handleFrame = () => {
+
+    this.redraw();
+
+    window.requestAnimationFrame(this.handleFrame);
+
+  }
+
+
+  // Methods
+
+  start() {
+
+    window.addEventListener('resize', this.handleResize);
+    window.requestAnimationFrame(this.handleFrame);
+
+  }
+
   redraw() {
 
-    const c   = this.canvas,
+    const cvs = this.canvas,
           ctx = this.context;
+
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
 
     this.drawCircle(this.w / 2, this.h / 2, 50, '#f55');
 
