@@ -5,13 +5,13 @@
   "description": "Creative work of Scott Thiessen",
   "author": "Scott Thiessen (http://movingobjects.io)",
   "license": "ISC",
-  "homepage": "https://github.com/sccottt/movingobjects.io#readme",
+  "homepage": "https://github.com/movingobjects/movingobjects.io#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sccottt/movingobjects.io.git"
+    "url": "git+https://github.com/movingobjects/movingobjects.io.git"
   },
   "bugs": {
-    "url": "https://github.com/sccottt/movingobjects.io/issues"
+    "url": "https://github.com/movingobjects/movingobjects.io/issues"
   },
   "engines": {
     "node": ">=8",
