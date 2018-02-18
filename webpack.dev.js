@@ -13,8 +13,7 @@ module.exports = merge(common, {
       {
         test: /\.jsx?$/,
         enforce: 'pre',
-        loader: 'source-map-loader',
-        exclude: /node_modules\/paper/,
+        loader: 'source-map-loader'
       },
 
       {

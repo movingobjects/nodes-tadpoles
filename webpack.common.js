@@ -32,11 +32,6 @@ module.exports = {
         options: {
           presets: ['env']
         }
-      },
-
-      {
-        test: /\.paper.js$/,
-        loader: "paper-loader"
       }
 
     ]

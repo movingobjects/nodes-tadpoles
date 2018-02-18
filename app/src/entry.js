@@ -2,9 +2,6 @@
 // Imports
 
 import './styles/style.scss';
+import Bg from './Bg';
 
-import bg from './bg.paper.js';
-
-window.onload = () => {
-  let scope = bg('bg');
-}
+let bg = new Bg();
