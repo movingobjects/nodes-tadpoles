@@ -1,3 +1,9 @@
+
+$green: #cf0;
+$blue: #3fd;
+$darkGreen: darken($green, 20%);
+$darkBlue: darken($blue, 25%);
+
 body {
   background: white;
   margin: 0px;
@@ -31,36 +37,30 @@ section#info {
     font: 65px/75px $fontDinRound;
 
     em {
+      color: black;
       font-style: normal;
     }
 
     &:hover {
       span.intro {
-        background-color: #3fd;
-        color: darken(#3fd, 25%);
-
+        background-color: $blue;
+        color: $darkBlue;
         a {
           text-decoration: underline;
         }
-
       }
     }
 
     span {
 
       &.intro {
-        padding: 5px;
-        background-color: #cf0;
-        color: darken(#cf0, 20%);
+        padding: 5px 0px;
+        background-color: $green;
+        color: $darkGreen;
 
         transition:
-          color 0.1s ease,
-          background-color 0.1s ease;
-
-        em {
-          color: black;
-        }
-
+          color 0.15s ease,
+          background-color 0.15s ease;
 
       }
 
@@ -80,6 +80,9 @@ section#info {
           background-color: black;
           color: white;
 
+          transition:
+            opacity 0.15s ease;
+
           &:hover {
             opacity: 0.5;
           }
@@ -96,6 +99,10 @@ section#info {
 
       &:hover {
         color: black;
+
+        transition:
+          color 0.15s ease;
+
       }
 
     }
@@ -105,11 +112,13 @@ section#info {
 }
 
 ::selection {
-  background-color: black;
-  color: black;
+  background-color: $blue;
+  color: $darkBlue;
 }
 
-::-moz-selection {
-  background-color: black;
-  color: black;
+section#info p:hover {
+  ::selection {
+    background: $green;
+    color: mix($darkBlue, $darkGreen, 50%);
+  }
 }
