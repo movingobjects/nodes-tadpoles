@@ -1,23 +1,15 @@
 {
-  "env": {
-    "padding": 100,
-    "gravity": 25,
-    "friction": 0.02
-  },
-  "nodes": {
-    "count": 50,
-    "radius": 8,
-    "colorOff": "#555",
-    "colorOn": "#3fd",
-    "maxVel": 8
-  },
-  "links": {
-    "strokeW": 8,
-    "color": "#3fd",
-    "maxDistSq": 3500
-  },
-  "trgts": {
-    "count": 5,
-    "minDist": 10
-  }
+  "padding": 100,
+  "gravity": 25,
+  "friction": 0.02,
+  "nodeCount": 50,
+  "nodeRadius": 8,
+  "lineWidth": 8,
+  "colorBg": "#fff",
+  "colorNode": "#eee",
+  "colorLink": "#3fd",
+  "nodeMaxVel": 8,
+  "linkMaxDistSq": 5000,
+  "trgtCount": 5,
+  "trgtCaptureDist": 10
 }

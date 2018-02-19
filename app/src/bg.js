@@ -32,10 +32,10 @@ export default class Bg {
   // Get & set
 
   get randomX() {
-    return random.int(config.env.padding, this.w - config.env.padding);
+    return random.int(config.padding, this.w - config.padding);
   }
   get randomY() {
-    return random.int(config.env.padding, this.h - config.env.padding);
+    return random.int(config.padding, this.h - config.padding);
   }
   get randomPt() {
     return {
@@ -68,6 +68,7 @@ export default class Bg {
 
   handleFrame = () => {
 
+    this.resetLinks();
     this.updateNodes();
     this.redraw();
 
@@ -83,14 +84,14 @@ export default class Bg {
     window.addEventListener('resize', this.handleResize);
     window.requestAnimationFrame(this.handleFrame);
 
-    this.nodes   = _.times(config.nodes.count, () => ({
+    this.nodes   = _.times(config.nodeCount, () => ({
       ...this.randomPt,
       vel: {
         x: random.num(-1, 1),
         y: random.num(-1, 1)
       }
     }));
-    this.trgts = _.times(config.trgts.count, () => this.randomPt);
+    this.trgts = _.times(config.trgtCount, () => this.randomPt);
 
   }
 
@@ -101,31 +102,36 @@ export default class Bg {
 
     ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-    this.trgts.forEach((trgt, i) => {
-      this.drawCircle(trgt.x, trgt.y, 4, '#f05');
-    });
+    this.links.forEach((link) => this.drawLink(link.nodeA, link.nodeB));
+    this.nodes.forEach((node) => this.drawNode(node));
 
-    this.nodes.forEach((node, i) => {
-      this.drawCircle(node.x, node.y, config.nodes.radius, config.nodes.colorOff);
+  }
+
+  resetLinks() {
+
+    this.links = [];
+
+    this.nodes.forEach((node) => {
+      node.linked = false
     });
 
   }
 
   updateNodes() {
 
-    this.nodes.forEach((node, i) => {
+    this.nodes.forEach((node) => {
 
       let velX = node.vel.x,
           velY = node.vel.y;
 
-      // Find nearest trgt
-
       if (this.trgts.length) {
 
-        let trgtNearest = this.trgts[0],
-            distSqMin   = geom.distSq(node, trgtNearest);
+        // Find nearest trgt
 
-        this.trgts.forEach((trgt, j) => {
+        let trgtNearest = undefined,
+            distSqMin   = Infinity;
+
+        this.trgts.forEach((trgt) => {
           let distSq = geom.distSq(node, trgt);
           if (distSq < distSqMin) {
             distSqMin   = distSq;
@@ -134,41 +140,69 @@ export default class Bg {
         });
 
 
-        // Check for eats
+        // Pull node toward trgt
 
-        let trgtDist = Math.sqrt(distSqMin),
-            trgtX    = trgtNearest.x,
-            trgtY    = trgtNearest.y;
-
-        if (trgtDist < config.trgts.minDist) {
-          trgtNearest.x = this.randomX;
-          trgtNearest.y = this.randomY;
-        }
-
-        // Recalc vel
-
-        let factorDist = 1 / Math.max(5, trgtDist * trgtDist),
-            pullX      = (trgtX - node.x) * factorDist * config.env.gravity,
-            pullY      = (trgtY - node.y) * factorDist * config.env.gravity;
+        let factorDist = 1 / Math.max(5, distSqMin),
+            pullX      = (trgtNearest.x - node.x) * factorDist * config.gravity,
+            pullY      = (trgtNearest.y - node.y) * factorDist * config.gravity;
 
         velX += pullX;
         velY += pullY;
 
+
+        // If close, move it somewhere else
+
+        if (Math.sqrt(distSqMin) < config.trgtCaptureDist) {
+          trgtNearest.x = this.randomX;
+          trgtNearest.y = this.randomY;
+        }
+
       }
 
-      velX = (velX * (1 - config.env.friction)) + ((node.vel.x - velX) * 0.5);
-      velY = (velY * (1 - config.env.friction)) + ((node.vel.y - velY) * 0.5);
+      // Find links
 
-      velX = maths.clamp(velX, -config.nodes.maxVel, config.nodes.maxVel);
-      velY = maths.clamp(velY, -config.nodes.maxVel, config.nodes.maxVel);
+      this.nodes.forEach((nodeB) => {
+        if (node !== nodeB && !this.alreadyLinked(node, nodeB)) {
+          if (geom.distSq(nodeB, node) < config.linkMaxDistSq) {
+            this.addLink(node, nodeB);
+          }
+        }
+      })
 
-      node.vel.x = velX;
-      node.vel.y = velY;
+      // Apply friction
+      velX *= (1 - config.friction);
+      velY *= (1 - config.friction);
 
+      // Limit vel
+      velX = maths.clamp(velX, -config.nodeMaxVel, config.nodeMaxVel);
+      velY = maths.clamp(velY, -config.nodeMaxVel, config.nodeMaxVel);
+
+      // Apply smoothed new velocity
+      node.vel.x = maths.lerp(node.vel.x, velX, 0.5);
+      node.vel.y = maths.lerp(node.vel.y, velY, 0.5);
+
+      // Move node position
       node.x += node.vel.x;
       node.y += node.vel.y;
 
+    });
 
+  }
+
+  alreadyLinked(nodeA, nodeB) {
+    return !!this.links.find((link) => {
+      return (link.nodeA === nodeA && link.nodeB === nodeB)
+          || (link.nodeA === nodeB && link.nodeB === nodeA);
+    });
+  }
+  addLink(nodeA, nodeB) {
+
+    nodeA.linked = true;
+    nodeB.linked = true;
+
+    this.links.push({
+      nodeA,
+      nodeB
     });
 
   }
@@ -176,13 +210,35 @@ export default class Bg {
 
   // Helpers
 
-  drawCircle(x, y, radius, color) {
+  drawNode(node) {
 
     const ctx = this.context;
-          ctx.fillStyle = color;
-          ctx.beginPath();
-          ctx.arc(x, y, radius, 0, Math.PI * 2);
-          ctx.fill();
+
+    ctx.fillStyle   = node.linked ? config.colorBg : config.colorNode;
+    ctx.strokeStyle = node.linked ? config.colorLink : config.colorNode;
+    ctx.lineWidth   = node.linked ? config.lineWidth : 0;
+
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, config.nodeRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (node.linked) {
+      ctx.stroke();
+    }
+
+  }
+
+  drawLink(ptA, ptB) {
+
+    const ctx = this.context;
+
+    ctx.lineWidth   = config.lineWidth;
+    ctx.strokeStyle = config.colorLink;
+
+    ctx.beginPath();
+    ctx.moveTo(ptA.x, ptA.y);
+    ctx.lineTo(ptB.x, ptB.y);
+    ctx.stroke();
 
   }
 
