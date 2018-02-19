@@ -11,13 +11,6 @@ module.exports = merge(common, {
     rules: [
 
       {
-        test: /\.jsx?$/,
-        enforce: 'pre',
-        loader: 'source-map-loader',
-        exclude: /node_modules\/paper/,
-      },
-
-      {
         test: /\.scss$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',

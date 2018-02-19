@@ -1,0 +1,15 @@
+{
+  "padding": 100,
+  "gravity": 25,
+  "friction": 0.02,
+  "nodeCount": 50,
+  "nodeRadius": 8,
+  "lineWidth": 8,
+  "colorBg": "#fff",
+  "colorNode": "#eee",
+  "colorLink": "#3fd",
+  "nodeMaxVel": 8,
+  "linkMaxDistSq": 7500,
+  "trgtCount": 5,
+  "trgtCaptureDist": 10
+}
