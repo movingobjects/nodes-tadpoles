@@ -195,6 +195,7 @@ export default class Bg {
           || (link.nodeA === nodeB && link.nodeB === nodeA);
     });
   }
+
   addLink(nodeA, nodeB) {
 
     nodeA.linked = true;
