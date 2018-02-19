@@ -9,7 +9,7 @@
   "colorNode": "#eee",
   "colorLink": "#3fd",
   "nodeMaxVel": 8,
-  "linkMaxDistSq": 5000,
+  "linkMaxDistSq": 7500,
   "trgtCount": 5,
   "trgtCaptureDist": 10
 }
