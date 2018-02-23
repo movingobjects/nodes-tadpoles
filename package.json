@@ -1,7 +1,7 @@
 {
   "name": "movingobjects.io",
   "productName": "Moving Objects",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Creative work of Scott Thiessen",
   "author": "Scott Thiessen (http://movingobjects.io)",
   "license": "ISC",
@@ -33,6 +33,7 @@
     "babel-preset-env": "^1.6.1",
     "css-loader": "^0.28.9",
     "extract-text-webpack-plugin": "^3.0.2",
+    "favicons-webpack-plugin": "0.0.7",
     "file-loader": "^1.1.8",
     "fs-extra": "^5.0.0",
     "html-webpack-plugin": "^2.30.1",
