@@ -6,8 +6,10 @@ import { maths, random, geom } from 'varyd-utils';
 
 import config from './config';
 
-
-// TODO: Look into Path2D for drawing circles (?)
+const Mode = Object.freeze({
+  LINKS: "Mode.LINKS",
+  TADPOLES: "Mode.TADPOLES"
+});
 
 export default class Bg {
 
@@ -18,9 +20,11 @@ export default class Bg {
     this.canvas  = document.getElementById(canvasId);
     this.context = this.canvas.getContext('2d');
 
-    this.nodes = [];
-    this.links = [];
-    this.trgts = [];
+    this.nodes   = [];
+    this.links   = [];
+    this.trgts   = [];
+
+    this.mode    = Mode.LINKS;
 
     this.handleResize();
 
@@ -68,11 +72,26 @@ export default class Bg {
 
   handleFrame = () => {
 
-    this.resetLinks();
+    if (this.mode === Mode.LINKS) {
+      this.resetLinks();
+    }
+
     this.updateNodes();
     this.redraw();
 
     window.requestAnimationFrame(this.handleFrame);
+
+  }
+
+  handleKey = (e) => {
+
+    switch (e.key) {
+
+      case " ":
+        this.mode = (this.mode === Mode.LINKS) ? Mode.TADPOLES : Mode.LINKS;
+        break;
+
+    }
 
   }
 
@@ -81,6 +100,7 @@ export default class Bg {
 
   start() {
 
+    window.addEventListener('keypress', this.handleKey);
     window.addEventListener('resize', this.handleResize);
     window.requestAnimationFrame(this.handleFrame);
 
@@ -100,9 +120,16 @@ export default class Bg {
     const cvs = this.canvas,
           ctx = this.context;
 
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    if (this.mode === Mode.LINKS) {
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      this.links.forEach((link) => this.drawLink(link.nodeA, link.nodeB));
+    }
 
-    this.links.forEach((link) => this.drawLink(link.nodeA, link.nodeB));
+    if (this.mode === Mode.TADPOLES) {
+      ctx.fillStyle = "rgba(100%, 100%, 100%, 0.1)";
+      ctx.fillRect(0, 0, cvs.width, cvs.height);
+    }
+
     this.nodes.forEach((node) => this.drawNode(node));
 
   }
@@ -161,13 +188,15 @@ export default class Bg {
 
       // Find links
 
-      this.nodes.forEach((nodeB) => {
-        if (node !== nodeB && !this.alreadyLinked(node, nodeB)) {
-          if (geom.distSq(nodeB, node) < config.linkMaxDistSq) {
-            this.addLink(node, nodeB);
+      if (this.mode === Mode.LINKS) {
+        this.nodes.forEach((nodeB) => {
+          if (node !== nodeB && !this.alreadyLinked(node, nodeB)) {
+            if (geom.distSq(nodeB, node) < config.linkMaxDistSq) {
+              this.addLink(node, nodeB);
+            }
           }
-        }
-      })
+        })
+      }
 
       // Apply friction
       velX *= (1 - config.friction);
