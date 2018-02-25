@@ -4,10 +4,39 @@
 import * as _ from 'lodash';
 import { maths, random, geom } from 'varyd-utils';
 
-import config from './config';
+
+// Constants
+
+const Mode = Object.freeze({
+  LINKS: 'Mode.LINKS',
+  TADPOLES: 'Mode.TADPOLES'
+});
+
+const PADDING             = 100,
+      GRAVITY             = 25,
+      FRICTION            = 0.02;
+
+const NODE_COUNT          = 50,
+      NODE_RADIUS         = 8,
+      LINE_WIDTH          = 8,
+      TADPOLE_VEL_MAG_MAX = 7,
+      TADPOLE_RADIUS_MAX  = 11,
+      TADPOLE_RADIUS_MIN  = 4,
+      TADPOLE_CLEAR_INT   = 40;
+
+const COLOR_BG            = "#fff",
+      COLOR_NODE          = "#eee",
+      COLOR_LINK          = "#3fd",
+      COLOR_TADPOLE       = "#fff",
+      TADPOLE_CLEAR_STYLE = "rgba(51, 255, 221, 0.15)";
+
+const NODE_MAX_VEL        = 8,
+      LINK_MAX_DIST_SQ    = 15000,
+      TRGT_COUNT          = 4,
+      TRGT_CAPTURE_DIST   = 10;
 
 
-// TODO: Look into Path2D for drawing circles (?)
+// Class
 
 export default class Bg {
 
@@ -18,9 +47,11 @@ export default class Bg {
     this.canvas  = document.getElementById(canvasId);
     this.context = this.canvas.getContext('2d');
 
-    this.nodes = [];
-    this.links = [];
-    this.trgts = [];
+    this.nodes   = [];
+    this.links   = [];
+    this.trgts   = [];
+
+    this.mode    = Mode.LINKS;
 
     this.handleResize();
 
@@ -32,10 +63,10 @@ export default class Bg {
   // Get & set
 
   get randomX() {
-    return random.int(config.padding, this.w - config.padding);
+    return random.int(PADDING, this.w - PADDING);
   }
   get randomY() {
-    return random.int(config.padding, this.h - config.padding);
+    return random.int(PADDING, this.h - PADDING);
   }
   get randomPt() {
     return {
@@ -62,48 +93,78 @@ export default class Bg {
       this.canvas.height = h;
     }
 
-    this.redraw();
+    if (this.mode === Mode.LINKS) {
+      this.redrawLinks();
+    } else {
+      this.redrawTadpoles();
+    }
 
   }
 
   handleFrame = () => {
 
-    this.resetLinks();
+    if (this.mode === Mode.LINKS) {
+      this.resetLinks();
+    }
+
     this.updateNodes();
-    this.redraw();
+
+    if (this.mode === Mode.LINKS) {
+      this.redrawLinks();
+    } else {
+      this.redrawTadpoles();
+    }
 
     window.requestAnimationFrame(this.handleFrame);
 
   }
+
+  handleKey = (e) => { }
 
 
   // Methods
 
   start() {
 
+    window.addEventListener('keypress', this.handleKey);
     window.addEventListener('resize', this.handleResize);
     window.requestAnimationFrame(this.handleFrame);
 
-    this.nodes   = _.times(config.nodeCount, () => ({
+    this.setupRollover();
+    this.makeNodes();
+    this.makeTrgts();
+
+  }
+
+  setupRollover() {
+
+    let elemInfo = document.getElementById('info');
+
+    elemInfo.addEventListener('mouseover', (e) => {
+      this.addClass(document.body, 'over-info');
+      this.mode = Mode.TADPOLES;
+    });
+
+    elemInfo.addEventListener('mouseout', (e) => {
+      this.removeClass(document.body, 'over-info');
+      this.mode = Mode.LINKS;
+    });
+
+  }
+  makeNodes() {
+
+    this.nodes   = _.times(NODE_COUNT, () => ({
       ...this.randomPt,
       vel: {
         x: random.num(-1, 1),
         y: random.num(-1, 1)
       }
     }));
-    this.trgts = _.times(config.trgtCount, () => this.randomPt);
 
   }
+  makeTrgts() {
 
-  redraw() {
-
-    const cvs = this.canvas,
-          ctx = this.context;
-
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
-
-    this.links.forEach((link) => this.drawLink(link.nodeA, link.nodeB));
-    this.nodes.forEach((node) => this.drawNode(node));
+    this.trgts = _.times(TRGT_COUNT, () => this.randomPt);
 
   }
 
@@ -116,13 +177,12 @@ export default class Bg {
     });
 
   }
-
   updateNodes() {
 
     this.nodes.forEach((node) => {
 
-      let velX = node.vel.x,
-          velY = node.vel.y;
+      let velX   = node.vel.x,
+          velY   = node.vel.y;
 
       if (this.trgts.length) {
 
@@ -143,8 +203,8 @@ export default class Bg {
         // Pull node toward trgt
 
         let factorDist = 1 / Math.max(5, distSqMin),
-            pullX      = (trgtNearest.x - node.x) * factorDist * config.gravity,
-            pullY      = (trgtNearest.y - node.y) * factorDist * config.gravity;
+            pullX      = (trgtNearest.x - node.x) * factorDist * GRAVITY,
+            pullY      = (trgtNearest.y - node.y) * factorDist * GRAVITY;
 
         velX += pullX;
         velY += pullY;
@@ -152,7 +212,7 @@ export default class Bg {
 
         // If close, move it somewhere else
 
-        if (Math.sqrt(distSqMin) < config.trgtCaptureDist) {
+        if (Math.sqrt(distSqMin) < TRGT_CAPTURE_DIST) {
           trgtNearest.x = this.randomX;
           trgtNearest.y = this.randomY;
         }
@@ -161,29 +221,96 @@ export default class Bg {
 
       // Find links
 
-      this.nodes.forEach((nodeB) => {
-        if (node !== nodeB && !this.alreadyLinked(node, nodeB)) {
-          if (geom.distSq(nodeB, node) < config.linkMaxDistSq) {
-            this.addLink(node, nodeB);
+      if (this.mode === Mode.LINKS) {
+        this.nodes.forEach((nodeB) => {
+          if ((node !== nodeB) && !this.alreadyLinked(node, nodeB)) {
+            if (geom.distSq(nodeB, node) < LINK_MAX_DIST_SQ) {
+              this.addLink(node, nodeB);
+            }
           }
-        }
-      })
+        })
+      }
 
       // Apply friction
-      velX *= (1 - config.friction);
-      velY *= (1 - config.friction);
+      velX *= (1 - FRICTION);
+      velY *= (1 - FRICTION);
 
       // Limit vel
-      velX = maths.clamp(velX, -config.nodeMaxVel, config.nodeMaxVel);
-      velY = maths.clamp(velY, -config.nodeMaxVel, config.nodeMaxVel);
+      velX = maths.clamp(velX, -NODE_MAX_VEL, NODE_MAX_VEL);
+      velY = maths.clamp(velY, -NODE_MAX_VEL, NODE_MAX_VEL);
 
       // Apply smoothed new velocity
       node.vel.x = maths.lerp(node.vel.x, velX, 0.5);
       node.vel.y = maths.lerp(node.vel.y, velY, 0.5);
 
       // Move node position
+
       node.x += node.vel.x;
       node.y += node.vel.y;
+
+    });
+
+  }
+
+  redrawLinks() {
+
+    const cvs = this.canvas,
+          ctx = this.context;
+
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+    this.links.forEach((link) => {
+
+      ctx.lineWidth   = LINE_WIDTH;
+      ctx.strokeStyle = COLOR_LINK;
+
+      ctx.beginPath();
+      ctx.moveTo(link.nodeA.x, link.nodeA.y);
+      ctx.lineTo(link.nodeB.x, link.nodeB.y);
+      ctx.stroke();
+
+    });
+
+    this.nodes.forEach((node) => {
+
+      ctx.fillStyle   = node.linked ? COLOR_BG : COLOR_NODE;
+      ctx.strokeStyle = node.linked ? COLOR_LINK : COLOR_NODE;
+      ctx.lineWidth   = node.linked ? LINE_WIDTH : 0;
+
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (node.linked) {
+        ctx.stroke();
+      }
+
+    });
+
+  }
+  redrawTadpoles() {
+
+    const cvs = this.canvas,
+          ctx = this.context;
+
+    const clearTadpoles = (Date.now() - (this.lastTadpoleClearTime || 0) > TADPOLE_CLEAR_INT);
+
+    if (clearTadpoles) {
+      this.lastTadpoleClearTime = Date.now();
+      ctx.fillStyle = TADPOLE_CLEAR_STYLE;
+      ctx.fillRect(0, 0, cvs.width, cvs.height);
+    }
+
+    ctx.fillStyle = COLOR_TADPOLE;
+
+    this.nodes.forEach((node) => {
+
+      let velMag = Math.sqrt((node.vel.x * node.vel.x) + (node.vel.y * node.vel.y)),
+          radius = maths.map(velMag, 0, TADPOLE_VEL_MAG_MAX, TADPOLE_RADIUS_MAX, TADPOLE_RADIUS_MIN, true);
+
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+      ctx.fill();
 
     });
 
@@ -195,7 +322,6 @@ export default class Bg {
           || (link.nodeA === nodeB && link.nodeB === nodeA);
     });
   }
-
   addLink(nodeA, nodeB) {
 
     nodeA.linked = true;
@@ -211,36 +337,19 @@ export default class Bg {
 
   // Helpers
 
-  drawNode(node) {
-
-    const ctx = this.context;
-
-    ctx.fillStyle   = node.linked ? config.colorBg : config.colorNode;
-    ctx.strokeStyle = node.linked ? config.colorLink : config.colorNode;
-    ctx.lineWidth   = node.linked ? config.lineWidth : 0;
-
-    ctx.beginPath();
-    ctx.arc(node.x, node.y, config.nodeRadius, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (node.linked) {
-      ctx.stroke();
-    }
-
+  hasClass(elem, cls) {
+    return !!elem.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
   }
-
-  drawLink(ptA, ptB) {
-
-    const ctx = this.context;
-
-    ctx.lineWidth   = config.lineWidth;
-    ctx.strokeStyle = config.colorLink;
-
-    ctx.beginPath();
-    ctx.moveTo(ptA.x, ptA.y);
-    ctx.lineTo(ptB.x, ptB.y);
-    ctx.stroke();
-
+  addClass(elem, cls) {
+    if (!this.hasClass(elem, cls)) {
+      elem.className += ' ' + cls;
+    }
+  }
+  removeClass(elem, cls) {
+    if (this.hasClass(elem, cls)) {
+      var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+      elem.className = elem.className.replace(reg, ' ');
+    }
   }
 
 
