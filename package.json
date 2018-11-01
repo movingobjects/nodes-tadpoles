@@ -1,17 +1,17 @@
 {
-  "name": "movingobjects.io",
-  "productName": "Moving Objects",
-  "version": "0.2.0",
-  "description": "Interactive work of Seattle-based creative front end developer Scott Thiessen",
+  "name": "nodes-tadpoles",
+  "productName": "Nodes/Tadpoles",
+  "version": "0.3.0",
+  "description": "Lil swimming/linking visualization",
   "author": "Scott Thiessen (http://movingobjects.io)",
   "license": "ISC",
-  "homepage": "https://github.com/movingobjects/movingobjects.io#readme",
+  "homepage": "https://github.com/movingobjects/nodes-tadpoles#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/movingobjects/movingobjects.io.git"
+    "url": "git+https://github.com/movingobjects/nodes-tadpoles.git"
   },
   "bugs": {
-    "url": "https://github.com/movingobjects/movingobjects.io/issues"
+    "url": "https://github.com/movingobjects/nodes-tadpoles/issues"
   },
   "engines": {
     "node": ">=8",
