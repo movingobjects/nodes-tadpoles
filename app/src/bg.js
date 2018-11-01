@@ -130,25 +130,14 @@ export default class Bg {
     window.addEventListener('resize', this.handleResize);
     window.requestAnimationFrame(this.handleFrame);
 
-    this.setupRollover();
     this.makeNodes();
     this.makeTrgts();
 
   }
 
-  setupRollover() {
 
-    let elemInfo = document.getElementById('info');
 
-    elemInfo.addEventListener('mouseover', (e) => {
-      this.addClass(document.body, 'over-info');
       this.mode = Mode.TADPOLES;
-    });
-
-    elemInfo.addEventListener('mouseout', (e) => {
-      this.removeClass(document.body, 'over-info');
-      this.mode = Mode.LINKS;
-    });
 
   }
   makeNodes() {
