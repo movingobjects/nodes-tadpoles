@@ -12,6 +12,8 @@ const Mode = Object.freeze({
   TADPOLES: 'Mode.TADPOLES'
 });
 
+const ALTERNATE_INTERVAL  = 1000;
+
 const PADDING             = 100,
       GRAVITY             = 25,
       FRICTION            = 0.02;
@@ -133,11 +135,22 @@ export default class Bg {
     this.makeNodes();
     this.makeTrgts();
 
+    setInterval(() => {
+      this.alternate();
+    }, ALTERNATE_INTERVAL)
+
   }
 
+  alternate() {
 
+    if (this.mode === Mode.TADPOLES) {
+      this.removeClass(document.body, 'alt');
+      this.mode = Mode.LINKS;
 
+    } else {
+      this.addClass(document.body, 'alt');
       this.mode = Mode.TADPOLES;
+    }
 
   }
   makeNodes() {
