@@ -19,10 +19,8 @@
   },
   "main": "app/src/entry.js",
   "scripts": {
-    "build": "node ./scripts/build.js",
-    "dev": "node ./scripts/build.js -w",
-    "enable-scripts": "node ./scripts/clean -s",
-    "reinstall": "node ./scripts/clean.js -m"
+    "dev": "webpack-dev-server --config ./webpack.dev.js --open --hot --inline",
+    "dist": "rm -rf ./app/dist; webpack --config ./webpack.prod.js"
   },
   "devDependencies": {
     "ajv": "^6.1.1",
