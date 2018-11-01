@@ -1,2 +1,2 @@
 # Nodes/Tadpoles
-Little swimming/linking visualization
+Lil swimming + linking visualization
