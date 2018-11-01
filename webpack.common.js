@@ -1,7 +1,6 @@
 
-const path                  = require('path'),
-      FaviconsWebpackPlugin = require('favicons-webpack-plugin'),
-      HtmlWebpackPlugin     = require('html-webpack-plugin');
+const path              = require('path'),
+      HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const appTitle = process.env.npm_package_productName || process.env.npm_package_name;
 
@@ -79,24 +78,6 @@ module.exports = {
   },
 
   plugins: [
-    new FaviconsWebpackPlugin({
-      logo: './app/resources/favicon.png',
-      inject: true,
-      prefix: 'resources/icons/favicons/',
-      title: appTitle,
-      icons: {
-        android: false,
-        appleIcon: false,
-        appleStartup: false,
-        coast: false,
-        favicons: true,
-        firefox: false,
-        opengraph: false,
-        twitter: false,
-        windows: false,
-        yandex: false
-      }
-    }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: 'app/src/index.html'
